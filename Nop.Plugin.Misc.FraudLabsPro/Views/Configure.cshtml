@@ -1,0 +1,73 @@
+﻿@model Nop.Plugin.Misc.FraudLabsPro.Models.ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+
+    var balanceStr = T("Plugins.Misc.FraudLabsPro.Fields.Balance.Unknown").ToString();
+    if (!string.IsNullOrEmpty(Model.Balance))
+    {
+        balanceStr = Model.Balance;
+    }
+}
+
+<form asp-controller="FraudLabsPro" asp-action="Configure" method="post">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p>
+                    To display the secured seal, make sure that the FraudLabs Pro widget is activated on the page
+                    <a href="@Url.Content("~/Admin/Widget/List/")">Widgets.</a>
+                </p>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ApiKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApiKey" />
+                        <span asp-validation-for="ApiKey"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ApproveStatusID" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="ApproveStatusID" asp-items="Model.AvailableStatusLists" />
+                        <span asp-validation-for="ApproveStatusID"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ReviewStatusID" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="ReviewStatusID" asp-items="Model.AvailableStatusLists" />
+                        <span asp-validation-for="ReviewStatusID"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="RejectStatusID" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-select asp-for="RejectStatusID" asp-items="Model.AvailableStatusLists" />
+                        <span asp-validation-for="RejectStatusID"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="Balance" />
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@balanceStr (<a href="@FraudLabsProDefaults.FraudLabsProUpgrageUrl" target="_blank">@T("Plugins.Misc.FraudLabsPro.Fields.Balance.Upgrade")</a>)</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-9 col-md-offset-3">
+                        <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
