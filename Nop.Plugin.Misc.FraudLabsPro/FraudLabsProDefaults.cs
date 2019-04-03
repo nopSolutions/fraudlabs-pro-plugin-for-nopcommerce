@@ -41,6 +41,11 @@
         public static string OrderResultAttribute => "FraudLabsProOrderResult";
 
         /// <summary>
+        /// Gets a key of the Oredr status
+        /// </summary>
+        public static string OrderStatusAttribute => "FraudLabsProOrderStatus";
+
+        /// <summary>
         /// Gets cookies name for device validation
         /// </summary>
         public static string CookiesName => "flp_checksum";

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
+using Nop.Core.Domain.Orders;
 using Nop.Core.Plugins;
 using Nop.Data.Extensions;
+using Nop.Services;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
@@ -82,11 +84,15 @@ namespace Nop.Plugin.Misc.FraudLabsPro
         public override void Install()
         {
             //settings
-            _settingService.SaveSetting(new FraudLabsProSettings());
+            _settingService.SaveSetting(new FraudLabsProSettings() {
+                ApproveStatusID = (int)OrderStatus.Processing,
+                ReviewStatusID = (int)OrderStatus.Pending,
+                RejectStatusID = (int)OrderStatus.Cancelled
+            });
 
             //locales
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.ApiKey", "API key");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.ApiKey.Hint", "Input your FraudLabsPro account API key.");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.ApiKey.Hint", "Input your FraudLabs Pro account API key.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.ApproveStatusID", "Approve Status");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.ApproveStatusID.Hint", "Change order status when order has been approved by FraudLabs Pro, or FraudLabs Pro Approve button has been pressed in order details page.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Fields.Balance", "Balance");
@@ -109,18 +115,20 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsCountryMatch.Hint", "Whether country of IP address matches billing address country.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsHighRiskCountry", "High risk country");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsHighRiskCountry.Hint", "Whether IP address or billing address country is in the latest high risk list.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInKM", "IP Distance in KM");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInKM.Hint", "Distance of location between IP address and bill. Value in kilometer.");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInKM", "IP Distance");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInKM.Hint", "Distance of location between IP address and bill.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInMile", "IP Distance in Mile");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInMile.Hint", "Distance of location between IP address and bill. Value in mile.");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPAddress", "IP Address");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPAddress.Hint", "Estimated of the IP address.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCountry", "IP Country");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCountry.Hint", "Estimated country of the IP address.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPRegion", "IP Region");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPRegion.Hint", "Estimated region of the IP address.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCity", "IP City");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCity.Hint", "Estimated city of the IP address.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPContinent", "IP Continent");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPContinent.Hint", "Estimated continent of the IP address. Please refer to Continent-Country for details.");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPContinent", "IP Location");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPContinent.Hint", "Estimated of the IP address.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPLatitude", "IP Latitude");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPLatitude.Hint", "Estimated latitude of the IP address.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPLongtitude", "IP Longtitude");
@@ -151,7 +159,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsNewDomainName.Hint", "Whether the email domain name a newly registered name. Only applicable for non-free email domain.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsDomainExists", "Domain Exists");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsDomainExists.Hint", "Whether the email domain name is a valid domain.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsProxyIPAddress", "Proxy IP Address");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsProxyIPAddress", "Using Proxy");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsProxyIPAddress.Hint", "Whether the IP address is from a known anonymous proxy server.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBinFound", "Bin Found");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBinFound.Hint", "Whether the BIN information matches our BIN list.");
@@ -163,7 +171,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBinPhoneMatch.Hint", "Whether the customer service phone number matches BIN phone. ");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBinPrepaid", "Bin Prepaid");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBinPrepaid.Hint", "Whether the credit card is a type of prepaid card.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsAddressShipForward", "Address Ship Forward");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsAddressShipForward", "Ship Forward");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsAddressShipForward.Hint", "Whether the shipping address is in database of known mail drops.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBillShipCityMatch", "Bill Ship City Match");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IsBillShipCityMatch.Hint", "Whether the billing city matches the shipping city.");
@@ -203,7 +211,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProDistribution.Hint", "Return the distribution of the risk rate range from 1 to 100. Distribution score of 90 means it is at top 10% high score in sample.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProStatus", "FraudLabs Pro Status");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProStatus.Hint", "Final action based on the rules analysis.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProID", "FraudLabs Pro ID");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProID", "Transaction ID");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProID.Hint", "System own unique identifier to identify this API transaction.");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProVersion", "FraudLabs Pro Version");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.FraudLabsProVersion.Hint", "Version of the fraud analysis engine used in this transaction.");
@@ -230,7 +238,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             foreach (var order in orders)
             {
                 var genericAttributes = _genericAttributeService.GetAttributesForEntity(order.Id, order.GetUnproxiedEntityType().Name).ToList()
-                    .Where(w => w.Key.Equals(FraudLabsProDefaults.OrderResultAttribute))
+                    .Where(w => w.Key.Equals(FraudLabsProDefaults.OrderResultAttribute) || w.Key.Equals(FraudLabsProDefaults.OrderStatusAttribute))
                     .ToArray();
                 if (genericAttributes.Any())
                     _genericAttributeService.DeleteAttributes(genericAttributes);
@@ -265,6 +273,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInKM.Hint");
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInMile");
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.DistanceInMile.Hint");
+            _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPAddress");
+            _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPAddress.Hint");
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCountry");
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPCountry.Hint");
             _localizationService.DeletePluginLocaleResource("Plugins.Misc.FraudLabsPro.Order.IPRegion");

@@ -91,11 +91,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     order.OrderStatusId = _fraudLabsProSettings.ApproveStatusID;
                     break;
                 case Order.Action.REJECT:
-                    order.OrderStatusId = _fraudLabsProSettings.RejectStatusID;
-                    break;
                 case Order.Action.REJECT_BLACKLIST:
-                    order.OrderStatusId = _fraudLabsProSettings.ReviewStatusID;                    
-                    break;
+                    order.OrderStatusId = _fraudLabsProSettings.RejectStatusID;
+                    break;                
             }
             if (!string.IsNullOrEmpty(fraudLabsProStatus))
             {
@@ -198,6 +196,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     _fraudLabsProSettings.Balance = result.FraudLabsProCredit;
                     _settingService.SaveSetting(_fraudLabsProSettings);
 
+                    //save order status
+                    _genericAttributeService.SaveAttribute(order, FraudLabsProDefaults.OrderStatusAttribute, result.FraudLabsProStatus);
+
                     UpdateOrerStatus(order, result.FraudLabsProStatus);
 
                     return result;
@@ -248,6 +249,11 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     if (!string.IsNullOrEmpty(stringOrderDetail))
                     {
                         var orderObject = JObject.Parse(stringOrderDetail);
+
+                        //save order status
+                        _genericAttributeService.SaveAttribute(order, FraudLabsProDefaults.OrderStatusAttribute, actionName);
+
+                        actionName = (actionName == Order.Action.REJECT_BLACKLIST) ? Order.Action.REJECT : actionName;
                         orderObject[nameof(OrderResult.FraudLabsProStatus)] = actionName;
 
                         _genericAttributeService.SaveAttribute(order, FraudLabsProDefaults.OrderResultAttribute, orderObject.ToString());

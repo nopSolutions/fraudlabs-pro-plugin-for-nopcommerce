@@ -1,6 +1,8 @@
 ﻿@model Nop.Plugin.Misc.FraudLabsPro.Models.Order.FraudLabsProOrderModel
 
-@{ 
+@using FraudLabsPro.NetCore2.FraudLabsPro;
+
+@{
     Html.AddCssFileParts("~/Plugins/Misc.FraudLabsPro/Content/styles.css", excludeFromBundle: true);
 }
 
@@ -10,24 +12,35 @@
             @{
                 var transactionalUrl = !string.IsNullOrEmpty(Model.FraudLabsProID) ? "transaction/" + Model.FraudLabsProID : string.Empty;
             }
-            @Html.Raw(string.Format(T("Plugins.Misc.FraudLabsPro.Order.Instructions").Text, FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl))
             <div class="row-button">
                 <div class="form-group">
                     <div class="col-md-12">
-                        <button type="button" id="fraudLabsProScreenOrder" class="btn btn-info">
-                            @T("Plugins.Misc.FraudLabsPro.Order.Screen")
-                        </button>
-                        @if (!string.IsNullOrEmpty(Model.FraudLabsProID))
+                        @if (string.IsNullOrEmpty(Model.FraudLabsProID))
                         {
-                            <button type="button" id="fraudLabsProOrderApprove" class="btn btn-success">
-                                @T("Plugins.Misc.FraudLabsPro.Order.Approve")
+                            <button type="button" id="fraudLabsProScreenOrder" class="btn btn-info">
+                                @T("Plugins.Misc.FraudLabsPro.Order.Screen")
                             </button>
-                            <button type="button" id="fraudLabsProOrderReject" class="btn btn-danger">
-                                @T("Plugins.Misc.FraudLabsPro.Order.Reject")
-                            </button>
-                            <button type="button" id="fraudLabsProOrderBlackList" class="btn bg-navy margin">
-                                @T("Plugins.Misc.FraudLabsPro.Order.BlackList")
-                            </button>
+                        }
+                        else
+                        {
+                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.APPROVE))
+                            {
+                                <button type="button" id="fraudLabsProOrderApprove" class="btn btn-success">
+                                    @T("Plugins.Misc.FraudLabsPro.Order.Approve")
+                                </button>
+                            }
+                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT) && !Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
+                            {
+                                <button type="button" id="fraudLabsProOrderReject" class="btn btn-danger">
+                                    @T("Plugins.Misc.FraudLabsPro.Order.Reject")
+                                </button>
+                            }
+                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
+                            {
+                                <button type="button" id="fraudLabsProOrderBlackList" class="btn bg-navy">
+                                    @T("Plugins.Misc.FraudLabsPro.Order.BlackList")
+                                </button>
+                            }
                         }
                         <script type="text/javascript">
                             $(document).ready(function () {
@@ -116,448 +129,197 @@
             </div>
             @if (!string.IsNullOrEmpty(Model.FraudLabsProID))
             {
-             <div class="row-data">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProStatus" />
+                <div class="row-data">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="FraudLabsProScore" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row font-size-15 bold">
+                                    @Model.FraudLabsProScore
+                                    <img alt="" src="@FraudLabsProDefaults.FraudLabsProImageUrl@(Model.FraudLabsProScore).png">
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row text-yellow font-size-18">@Model.FraudLabsProStatus</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPAddress" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPAddress</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProID" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPNetSpeed" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPNetSpeed</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProID</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPDomain" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPDomain</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="DistanceInKM" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPTimeZone" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPTimeZone</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.DistanceInKM</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPLatitude" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPLatitude</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="DistanceInMile" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsHighRiskCountry" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsHighRiskCountry</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.DistanceInMile</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsAddressShipForward" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsAddressShipForward</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsCountryMatch" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsBinFound" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsBinFound</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsCountryMatch</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsCreditCardBlacklist" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsCreditCardBlacklist</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsHighRiskCountry" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsHighRiskCountry</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsAddressShipForward" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsAddressShipForward</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBillShipCityMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBillShipCityMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBillShipStateMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBillShipStateMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBillShipCountryMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBillShipCountryMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBillShipPostalMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBillShipPostalMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsIPBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsIPBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsEmailBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsEmailBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsCreditCardBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsCreditCardBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsDeviceBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsDeviceBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsUserBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsUserBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsShipAddressBlackList" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsShipAddressBlackList</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsPhoneBlacklist" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsPhoneBlacklist</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsHighRiskUsernamePassword" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsHighRiskUsernamePassword</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsMalwareExploit" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsMalwareExploit</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsExportControlledCountry" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsExportControlledCountry</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="UserOrderID" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.UserOrderID</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="UserOrderMemo" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.UserOrderMemo</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProVersion" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProVersion</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProErrorCode" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProErrorCode</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProMessage" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProMessage</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProCredit" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProCredit</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProScore" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row font-size-15 bold">
-                                @Model.FraudLabsProScore
-                                <img alt="" src="@FraudLabsProDefaults.FraudLabsProImageUrl@(Model.FraudLabsProScore).png">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="FraudLabsProMessage" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.FraudLabsProMessage</div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="FraudLabsProDistribution" />
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="FraudLabsProStatus" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row text-yellow font-size-18">@Model.FraudLabsProStatus</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.FraudLabsProDistribution</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="FraudLabsProID" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">
+                                    <p>
+                                        <a href='@(FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl)' target='_blank'>@Model.FraudLabsProID</a>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                    </div>                    
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPCountry" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPContinent" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@string.Join(", ", Model.IPContinent, Model.IPCountry, Model.IPRegion, Model.IPCity)</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPCountry</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPISPName" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPISPName</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPRegion" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPUsageType" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPUsageType</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPRegion</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="DistanceInKM" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.DistanceInKM KM/ @Model.DistanceInMile Miles</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPCity" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IPLongtitude" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IPLongtitude</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPCity</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsFreeEmail" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsFreeEmail</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPContinent" />
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsProxyIPAddress" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsProxyIPAddress</div>
+                            </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPContinent</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="IsEmailBlacklist" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.IsEmailBlacklist</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPLatitude" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPLatitude</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPLongtitude" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPLongtitude</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPTimeZone" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPTimeZone</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPElevation" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPElevation</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPDomain" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPDomain</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPMobileMNC" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPMobileMNC</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPMobileMCC" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPMobileMCC</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPMobileBrand" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPMobileBrand</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPNetSpeed" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPNetSpeed</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPISPName" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPISPName</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IPUsageType" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IPUsageType</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsFreeEmail" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsFreeEmail</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsDisposableEmail" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsDisposableEmail</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsNewDomainName" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsNewDomainName</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsDomainExists" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsDomainExists</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsProxyIPAddress" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsProxyIPAddress</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBinFound" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBinFound</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBinCountryMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBinCountryMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBinNameMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBinNameMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group fraudlabspro-row">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBinPhoneMatch" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBinPhoneMatch</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-5">
-                            <nop-label asp-for="IsBinPrepaid" />
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-text-row">@Model.IsBinPrepaid</div>
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <nop-label asp-for="FraudLabsProCredit" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-text-row">@Model.FraudLabsProCredit</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
+                @Html.Raw(string.Format(T("Plugins.Misc.FraudLabsPro.Order.Instructions").Text, FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl))
+            }
         </div>
     </div>
 </div>

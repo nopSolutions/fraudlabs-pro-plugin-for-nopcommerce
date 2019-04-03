@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Misc.FraudLabsPro.Models.Order;
+using Nop.Plugin.Misc.SendInBlue.Services;
 using Nop.Services.Common;
 using Nop.Services.Events;
 using Nop.Services.Localization;
@@ -98,6 +99,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                 var orderResultModel = response.ToObject<FraudLabsProOrderModel>();
 
                 orderResultModel.Id = orderModel.Id;
+                orderResultModel.IPAddress = order.Customer.LastIpAddress;
+                orderResultModel.IPCountry = ISO3166.FromCountryCode(orderResultModel.IPCountry)?.Name ?? "-";
+                orderResultModel.FraudLabsProOriginalStatus = _genericAttributeService.GetAttribute<string>(order, FraudLabsProDefaults.OrderStatusAttribute) ?? string.Empty;
                 model = orderResultModel;
             }
 

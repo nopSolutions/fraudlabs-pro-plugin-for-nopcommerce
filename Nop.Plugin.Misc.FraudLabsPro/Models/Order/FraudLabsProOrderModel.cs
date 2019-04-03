@@ -27,6 +27,10 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Models.Order
         public string DistanceInMile { get; set; }
 
         [JsonConverter(typeof(StringConverter))]
+        [NopResourceDisplayName("Plugins.Misc.FraudLabsPro.Order.IPAddress")]
+        public string IPAddress { get; set; }
+
+        [JsonConverter(typeof(StringConverter))]
         [NopResourceDisplayName("Plugins.Misc.FraudLabsPro.Order.IPCountry")]
         public string IPCountry { get; set; }
 
@@ -225,5 +229,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Models.Order
         [JsonConverter(typeof(StringConverter))]
         [NopResourceDisplayName("Plugins.Misc.FraudLabsPro.Order.FraudLabsProCredit")]
         public string FraudLabsProCredit { get; set; }
+
+        public string FraudLabsProOriginalStatus { get; set; }
     }
 }
