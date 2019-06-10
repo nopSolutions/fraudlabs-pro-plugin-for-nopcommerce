@@ -11,9 +11,19 @@
         public static string SystemName => "Misc.FraudLabsPro";
 
         /// <summary>
-        /// Name of the view component to display plugin in public store
+        /// Name of the view component to display seal in public store
         /// </summary>
-        public const string ViewComponentName = "FraudLabsPro.Secured.Seal";
+        public const string SEAL_VIEW_COMPONENT_NAME = "FraudLabsPro.Secured.Seal";
+
+        /// <summary>
+        /// Name of the view component to disaply FraudLabsPro block on the order details page
+        /// </summary>
+        public const string ORDER_VIEW_COMPONENT_NAME = "FraudLabsPro.OrderDetails";
+
+        /// <summary>
+        /// Generic attribute name to hide FraudLabsPro order block on the order details page
+        /// </summary>
+        public static string HideBlockAttribute = "OrderPage.HideFraudLabsProBlock";
 
         /// <summary>
         /// Gets Secured Seal link url
@@ -53,7 +63,7 @@
         /// <summary>
         /// Gets FraudLabs tab name
         /// </summary>
-        public static string FraudLabsProTabId => "tab-fraudlabspro";
+        public static string FraudLabsProPanelId => "panel-fraudlabspro";
 
         /// <summary>
         /// Gets path of agent js script

@@ -23,7 +23,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Controllers
         public OrderController(
             FraudLabsProManager fraudLabsProManager,
             IOrderService orderService,
-            IPermissionService permissionService            
+            IPermissionService permissionService
             )
         {
             _fraudLabsProManager = fraudLabsProManager;
@@ -41,7 +41,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Controllers
             //whether user has the authority
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
                 return AccessDeniedView();
-            
+
             var order = _orderService.GetOrderById(orderId);
 
             if (order != null)
@@ -61,7 +61,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Controllers
             //whether user has the authority
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
                 return AccessDeniedView();
-            
+
             if (!string.IsNullOrEmpty(transactionId))
             {
                 var orderResult = _fraudLabsProManager.OrderFeedback(orderId, transactionId, Order.Action.APPROVE);

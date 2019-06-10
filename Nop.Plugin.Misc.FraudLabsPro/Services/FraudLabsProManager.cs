@@ -42,8 +42,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
             IOrderProcessingService orderProcessingService,
             IOrderService orderService,
             ISettingService settingService,
-            IStoreContext storeContext,            
-            IWorkContext workContext            
+            IStoreContext storeContext,
+            IWorkContext workContext
             )
         {
             _fraudLabsProSettings = fraudLabsProSettings;
@@ -93,14 +93,14 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                 case Order.Action.REJECT:
                 case Order.Action.REJECT_BLACKLIST:
                     order.OrderStatusId = _fraudLabsProSettings.RejectStatusID;
-                    break;                
+                    break;
             }
             if (!string.IsNullOrEmpty(fraudLabsProStatus))
             {
                 _orderService.UpdateOrder(order);
                 _orderProcessingService.CheckOrderStatus(order);
             }
-                
+
         }
 
         #endregion
@@ -141,7 +141,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
 
                     //prepare parameters
                     var screenOrderPara = new OrderPara();
-                    
+
                     //customer information
                     screenOrderPara.IPAddress = customer.LastIpAddress ?? string.Empty;
                     screenOrderPara.FirstName = ((billingAddress != null) ? billingAddress.FirstName : string.Empty) ?? string.Empty;
@@ -179,7 +179,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                         screenOrderPara.CardNumber = cardNumber;
                         screenOrderPara.PaymentMode = Order.PaymentMethods.CREDIT_CARD;
                     }
-                    
+
                     // Order Information
                     screenOrderPara.Department = _storeContext.CurrentStore.Name ?? string.Empty;
                     screenOrderPara.UserOrderID = order.Id.ToString();

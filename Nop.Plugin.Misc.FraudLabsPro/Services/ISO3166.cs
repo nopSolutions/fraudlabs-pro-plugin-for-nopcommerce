@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Nop.Plugin.Misc.SendInBlue.Services
+namespace Nop.Plugin.Misc.FraudLabsPro.Services
 {
     public static class ISO3166
     {
@@ -9,21 +9,21 @@ namespace Nop.Plugin.Misc.SendInBlue.Services
         /// <summary>
         /// Obtain ISO3166-1 Country based on its ISO code.
         /// </summary>
-        /// <param name="ISOCode"></param>
+        /// <param name="codeISO"></param>
         /// <returns></returns>
-        public static ISO3166Country FromISOCode(int ISOCode)
+        public static ISO3166Country FromISOCode(int codeISO)
         {
-            return GetCollection().FirstOrDefault(p => p.NumericCode == ISOCode);
+            return GetCollection().FirstOrDefault(p => p.NumericCode == codeISO);
         }
 
         /// <summary>
         /// Obtain ISO3166-1 Country based on its alpha-2.
         /// </summary>
-        /// <param name="CountryCode"></param>
+        /// <param name="countryCode"></param>
         /// <returns></returns>
-        public static ISO3166Country FromCountryCode(string CountryCode)
+        public static ISO3166Country FromCountryCode(string countryCode)
         {
-            return GetCollection().FirstOrDefault(p => p.Alpha2 == CountryCode);
+            return GetCollection().FirstOrDefault(p => p.Alpha2 == countryCode);
         }
 
         #region Build Collection

@@ -7,7 +7,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Components
     /// <summary>
     /// Represents view component
     /// </summary>
-    [ViewComponent(Name = FraudLabsProDefaults.ViewComponentName)]
+    [ViewComponent(Name = FraudLabsProDefaults.SEAL_VIEW_COMPONENT_NAME)]
     public class FraudLabsProViewComponent : NopViewComponent
     {
         #region Fields
@@ -37,7 +37,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Components
                 HrefUrl = FraudLabsProDefaults.SecuredSealHrefUrl,
                 LinkSrc = FraudLabsProDefaults.SecuredSealLinkSrc
             };
-                
+
             return View("~/Plugins/Misc.FraudLabsPro/Views/PublicInfo.cshtml", model);
         }
 

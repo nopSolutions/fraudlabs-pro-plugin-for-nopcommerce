@@ -7,5 +7,5 @@
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(e, s);
     }
-        (window.attachEvent) ? window.attachEvent('onload', s) : window.addEventListener('load', s, false);
+        window.attachEvent ? window.attachEvent('onload', s) : window.addEventListener('load', s, false);
 })();

@@ -5,324 +5,325 @@
 @{
     Html.AddCssFileParts("~/Plugins/Misc.FraudLabsPro/Content/styles.css", excludeFromBundle: true);
 }
-
-<div class="panel-group">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            @{
-                var transactionalUrl = !string.IsNullOrEmpty(Model.FraudLabsProID) ? "transaction/" + Model.FraudLabsProID : string.Empty;
-            }
-            <div class="row-button">
-                <div class="form-group">
-                    <div class="col-md-12">
-                        @if (string.IsNullOrEmpty(Model.FraudLabsProID))
-                        {
-                            <button type="button" id="fraudLabsProScreenOrder" class="btn btn-info">
-                                @T("Plugins.Misc.FraudLabsPro.Order.Screen")
-                            </button>
-                        }
-                        else
-                        {
-                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.APPROVE))
+<nop-panel asp-name="@FraudLabsProDefaults.FraudLabsProPanelId" asp-icon="fa fa-shield" asp-title="@T("Plugins.Misc.FraudLabsPro.Order")" asp-hide-block-attribute-name="@FraudLabsProDefaults.HideBlockAttribute" asp-hide="@Model.HideBlock" asp-advanced="true">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @{
+                    var transactionalUrl = !string.IsNullOrEmpty(Model.FraudLabsProID) ? "transaction/" + Model.FraudLabsProID : string.Empty;
+                }
+                <div class="row-button">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            @if (string.IsNullOrEmpty(Model.FraudLabsProID))
                             {
-                                <button type="button" id="fraudLabsProOrderApprove" class="btn btn-success">
-                                    @T("Plugins.Misc.FraudLabsPro.Order.Approve")
+                                <button type="button" id="fraudLabsProScreenOrder" class="btn btn-info">
+                                    @T("Plugins.Misc.FraudLabsPro.Order.Screen")
                                 </button>
                             }
-                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT) && !Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
+                            else
                             {
-                                <button type="button" id="fraudLabsProOrderReject" class="btn btn-danger">
-                                    @T("Plugins.Misc.FraudLabsPro.Order.Reject")
-                                </button>
+                                if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.APPROVE))
+                                {
+                                    <button type="button" id="fraudLabsProOrderApprove" class="btn btn-success">
+                                        @T("Plugins.Misc.FraudLabsPro.Order.Approve")
+                                    </button>
+                                }
+                                if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT) && !Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
+                                {
+                                    <button type="button" id="fraudLabsProOrderReject" class="btn btn-danger">
+                                        @T("Plugins.Misc.FraudLabsPro.Order.Reject")
+                                    </button>
+                                }
+                                if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
+                                {
+                                    <button type="button" id="fraudLabsProOrderBlackList" class="btn bg-navy">
+                                        @T("Plugins.Misc.FraudLabsPro.Order.BlackList")
+                                    </button>
+                                }
                             }
-                            if (!Model.FraudLabsProOriginalStatus.Equals(Order.Action.REJECT_BLACKLIST))
-                            {
-                                <button type="button" id="fraudLabsProOrderBlackList" class="btn bg-navy">
-                                    @T("Plugins.Misc.FraudLabsPro.Order.BlackList")
-                                </button>
-                            }
-                        }
-                        <script type="text/javascript">
-                            $(document).ready(function () {
-                                $('#fraudLabsProScreenOrder').click(function () {
-                                    var postData = {
-                                        orderId: '@Model.UserOrderID'
-                                    };
-                                    addAntiForgeryToken(postData);
-                                    $.ajax({
-                                        cache: false,
-                                        type: "POST",
-                                        url: "@(Url.Action("FraudLabsProOrderScreen"))",
-                                        data: postData,
-                                        success: function (data) {
-                                            location.reload();
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            alert('Failed to screen order.');
-                                        }
+                            <script type="text/javascript">
+                                $(document).ready(function () {
+                                    $('#fraudLabsProScreenOrder').click(function () {
+                                        var postData = {
+                                            orderId: '@Model.UserOrderID'
+                                        };
+                                        addAntiForgeryToken(postData);
+                                        $.ajax({
+                                            cache: false,
+                                            type: "POST",
+                                            url: "@(Url.Action("FraudLabsProOrderScreen"))",
+                                            data: postData,
+                                            success: function (data) {
+                                                location.reload();
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                alert('Failed to screen order.');
+                                            }
+                                        });
+                                    });
+    
+                                    $('#fraudLabsProOrderApprove').click(function () {
+                                        var postData = {
+                                            transactionId: '@Model.FraudLabsProID',
+                                            orderId: '@Model.UserOrderID'
+                                        };
+                                        addAntiForgeryToken(postData);
+                                        $.ajax({
+                                            cache: false,
+                                            type: "POST",
+                                            url: "@(Url.Action("FraudLabsProOrderApprove"))",
+                                            data: postData,
+                                            success: function (data) {
+                                                location.reload();
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                alert('Failed to approve order.');
+                                            }
+                                        });
+                                    });
+    
+                                    $('#fraudLabsProOrderReject').click(function () {
+                                        var postData = {
+                                            transactionId: '@Model.FraudLabsProID',
+                                            orderId: '@Model.UserOrderID'
+                                        };
+                                        addAntiForgeryToken(postData);
+                                        $.ajax({
+                                            cache: false,
+                                            type: "POST",
+                                            url: "@(Url.Action("FraudLabsProOrderReject"))",
+                                            data: postData,
+                                            success: function (data) {
+                                                location.reload();
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                alert('Failed to reject order.');
+                                            }
+                                        });
+                                    });
+    
+                                    $('#fraudLabsProOrderBlackList').click(function () {
+                                        var postData = {
+                                            transactionId: '@Model.FraudLabsProID',
+                                            orderId: '@Model.UserOrderID'
+                                        };
+                                        addAntiForgeryToken(postData);
+                                        $.ajax({
+                                            cache: false,
+                                            type: "POST",
+                                            url: "@(Url.Action("FraudLabsProOrderBlackList"))",
+                                            data: postData,
+                                            success: function (data) {
+                                                location.reload();
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                alert('Failed to black list order.');
+                                            }
+                                        });
                                     });
                                 });
-
-                                $('#fraudLabsProOrderApprove').click(function () {
-                                    var postData = {
-                                        transactionId: '@Model.FraudLabsProID',
-                                        orderId: '@Model.UserOrderID'
-                                    };
-                                    addAntiForgeryToken(postData);
-                                    $.ajax({
-                                        cache: false,
-                                        type: "POST",
-                                        url: "@(Url.Action("FraudLabsProOrderApprove"))",
-                                        data: postData,
-                                        success: function (data) {
-                                            location.reload();
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            alert('Failed to approve order.');
-                                        }
-                                    });
-                                });
-
-                                $('#fraudLabsProOrderReject').click(function () {
-                                    var postData = {
-                                        transactionId: '@Model.FraudLabsProID',
-                                        orderId: '@Model.UserOrderID'
-                                    };
-                                    addAntiForgeryToken(postData);
-                                    $.ajax({
-                                        cache: false,
-                                        type: "POST",
-                                        url: "@(Url.Action("FraudLabsProOrderReject"))",
-                                        data: postData,
-                                        success: function (data) {
-                                            location.reload();
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            alert('Failed to reject order.');
-                                        }
-                                    });
-                                });
-
-                                $('#fraudLabsProOrderBlackList').click(function () {
-                                    var postData = {
-                                        transactionId: '@Model.FraudLabsProID',
-                                        orderId: '@Model.UserOrderID'
-                                    };
-                                    addAntiForgeryToken(postData);
-                                    $.ajax({
-                                        cache: false,
-                                        type: "POST",
-                                        url: "@(Url.Action("FraudLabsProOrderBlackList"))",
-                                        data: postData,
-                                        success: function (data) {
-                                            location.reload();
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            alert('Failed to black list order.');
-                                        }
-                                    });
-                                });
-                            });
-                        </script>
+                            </script>
+                        </div>
                     </div>
                 </div>
+                @if (!string.IsNullOrEmpty(Model.FraudLabsProID))
+                {
+                    <div class="row-data">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="FraudLabsProScore" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row font-size-15 bold">
+                                        @Model.FraudLabsProScore
+                                        <img alt="" src="@FraudLabsProDefaults.FraudLabsProImageUrl@(Model.FraudLabsProScore).png">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPAddress" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPAddress</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPNetSpeed" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPNetSpeed</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPDomain" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPDomain</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPTimeZone" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPTimeZone</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPLatitude" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPLatitude</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsHighRiskCountry" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsHighRiskCountry</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsAddressShipForward" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsAddressShipForward</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsBinFound" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsBinFound</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsCreditCardBlacklist" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsCreditCardBlacklist</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="FraudLabsProMessage" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.FraudLabsProMessage</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="FraudLabsProStatus" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row text-yellow font-size-18">@Model.FraudLabsProStatus</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="FraudLabsProID" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">
+                                        <p>
+                                            <a href='@(FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl)' target='_blank'>@Model.FraudLabsProID</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPContinent" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@string.Join(", ", Model.IPContinent, Model.IPCountry, Model.IPRegion, Model.IPCity)</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPISPName" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPISPName</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPUsageType" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPUsageType</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="DistanceInKM" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.DistanceInKM KM/ @Model.DistanceInMile Miles</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IPLongtitude" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IPLongtitude</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsFreeEmail" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsFreeEmail</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsProxyIPAddress" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsProxyIPAddress</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="IsEmailBlacklist" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.IsEmailBlacklist</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    <nop-label asp-for="FraudLabsProCredit" />
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-text-row">@Model.FraudLabsProCredit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @Html.Raw(string.Format(T("Plugins.Misc.FraudLabsPro.Order.Instructions").Text, FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl))
+                }
             </div>
-            @if (!string.IsNullOrEmpty(Model.FraudLabsProID))
-            {
-                <div class="row-data">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="FraudLabsProScore" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row font-size-15 bold">
-                                    @Model.FraudLabsProScore
-                                    <img alt="" src="@FraudLabsProDefaults.FraudLabsProImageUrl@(Model.FraudLabsProScore).png">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPAddress" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPAddress</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPNetSpeed" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPNetSpeed</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPDomain" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPDomain</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPTimeZone" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPTimeZone</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPLatitude" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPLatitude</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsHighRiskCountry" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsHighRiskCountry</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsAddressShipForward" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsAddressShipForward</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsBinFound" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsBinFound</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsCreditCardBlacklist" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsCreditCardBlacklist</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="FraudLabsProMessage" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.FraudLabsProMessage</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="FraudLabsProStatus" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row text-yellow font-size-18">@Model.FraudLabsProStatus</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="FraudLabsProID" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">
-                                    <p>
-                                        <a href='@(FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl)' target='_blank'>@Model.FraudLabsProID</a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPContinent" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@string.Join(", ", Model.IPContinent, Model.IPCountry, Model.IPRegion, Model.IPCity)</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPISPName" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPISPName</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPUsageType" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPUsageType</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="DistanceInKM" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.DistanceInKM KM/ @Model.DistanceInMile Miles</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IPLongtitude" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IPLongtitude</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsFreeEmail" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsFreeEmail</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsProxyIPAddress" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsProxyIPAddress</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="IsEmailBlacklist" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.IsEmailBlacklist</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-5">
-                                <nop-label asp-for="FraudLabsProCredit" />
-                            </div>
-                            <div class="col-md-7">
-                                <div class="form-text-row">@Model.FraudLabsProCredit</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @Html.Raw(string.Format(T("Plugins.Misc.FraudLabsPro.Order.Instructions").Text, FraudLabsProDefaults.FraudLabsProMerchantArea + transactionalUrl))
-            }
         </div>
     </div>
-</div>
+</nop-panel>
 <script>
     $('div.form-text-row').each(function () {
         var x = $(this).text();

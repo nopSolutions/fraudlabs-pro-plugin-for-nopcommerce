@@ -230,6 +230,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Models.Order
         [NopResourceDisplayName("Plugins.Misc.FraudLabsPro.Order.FraudLabsProCredit")]
         public string FraudLabsProCredit { get; set; }
 
+        public bool HideBlock { get; set; }
+
         public string FraudLabsProOriginalStatus { get; set; }
     }
 }

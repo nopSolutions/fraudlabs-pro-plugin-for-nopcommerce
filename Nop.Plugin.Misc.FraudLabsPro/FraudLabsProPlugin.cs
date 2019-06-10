@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
-using Nop.Core.Plugins;
 using Nop.Data.Extensions;
-using Nop.Services;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
+using Nop.Services.Plugins;
 using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.Misc.FraudLabsPro
@@ -57,7 +57,12 @@ namespace Nop.Plugin.Misc.FraudLabsPro
         /// <returns>Widget zones</returns>
         public IList<string> GetWidgetZones()
         {
-            return new List<string> { PublicWidgetZones.OpcContentAfter, PublicWidgetZones.CheckoutConfirmBottom };
+            return new List<string>
+            {
+                AdminWidgetZones.OrderDetailsBlock,
+                PublicWidgetZones.OpcContentAfter,
+                PublicWidgetZones.CheckoutConfirmBottom
+            };
         }
 
         /// <summary>
@@ -67,7 +72,14 @@ namespace Nop.Plugin.Misc.FraudLabsPro
         /// <returns>View component name</returns>
         public string GetWidgetViewComponentName(string widgetZone)
         {
-            return FraudLabsProDefaults.ViewComponentName;
+            if (!widgetZone?.Equals(AdminWidgetZones.OrderDetailsBlock, StringComparison.InvariantCultureIgnoreCase) ?? true)
+            {
+                return FraudLabsProDefaults.SEAL_VIEW_COMPONENT_NAME;
+            }
+            else
+            {
+                return FraudLabsProDefaults.ORDER_VIEW_COMPONENT_NAME;
+            }
         }
 
         /// <summary>
@@ -84,7 +96,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro
         public override void Install()
         {
             //settings
-            _settingService.SaveSetting(new FraudLabsProSettings() {
+            _settingService.SaveSetting(new FraudLabsProSettings()
+            {
                 ApproveStatusID = (int)OrderStatus.Processing,
                 ReviewStatusID = (int)OrderStatus.Pending,
                 RejectStatusID = (int)OrderStatus.Cancelled
@@ -380,6 +393,11 @@ namespace Nop.Plugin.Misc.FraudLabsPro
         }
 
         #endregion
+
+        /// <summary>
+        /// Gets a value indicating whether to hide this plugin on the widget list page in the admin area
+        /// </summary>
+        public bool HideInWidgetList => false;
 
     }
 }

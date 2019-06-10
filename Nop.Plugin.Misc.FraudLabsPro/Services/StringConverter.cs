@@ -15,15 +15,18 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            string source = (string)reader.Value;
+            var source = (string)reader.Value;
             var res = string.Empty;
             switch (source)
             {
-                case "N": res = "No";
+                case "N":
+                    res = "No";
                     break;
-                case "Y": res = "Yes";
+                case "Y":
+                    res = "Yes";
                     break;
-                case "NA": res = "N/A";
+                case "NA":
+                    res = "N/A";
                     break;
                 default:
                     res = source;

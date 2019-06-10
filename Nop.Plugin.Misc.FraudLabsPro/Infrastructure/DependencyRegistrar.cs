@@ -2,6 +2,7 @@
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Plugin.Misc.FraudLabsPro.Factories;
 using Nop.Plugin.Misc.FraudLabsPro.Services;
 
 namespace Nop.Plugin.Misc.FraudLabsPro.Infrastructure
@@ -21,6 +22,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Infrastructure
         {
             //register custom services
             builder.RegisterType<FraudLabsProManager>().AsSelf().InstancePerLifetimeScope();
+
+            //register custom factories
+            builder.RegisterType<FraudLabsProOrderModelFactory>().AsSelf().InstancePerLifetimeScope();
         }
 
         /// <summary>
