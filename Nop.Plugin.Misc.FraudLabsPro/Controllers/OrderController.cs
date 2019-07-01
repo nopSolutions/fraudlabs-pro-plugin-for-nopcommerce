@@ -1,4 +1,4 @@
-﻿using FraudLabsPro.NetCore2.FraudLabsPro;
+﻿using FraudLabsPro.FraudLabsPro;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Misc.FraudLabsPro.Services;

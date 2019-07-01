@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using FraudLabsPro.NetCore2.FraudLabsPro;
+using FraudLabsPro.FraudLabsPro;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
