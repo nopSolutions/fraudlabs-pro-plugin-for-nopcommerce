@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using Nop.Core.Domain.Orders;
+﻿using Nop.Core.Domain.Orders;
+using Nop.Services.Cms;
 using Nop.Services.Events;
-using Nop.Services.Plugins;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.UI;
 
@@ -17,7 +16,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
         #region Fields
 
         private readonly FraudLabsProManager _fraudLabsProManager;
-        private readonly IPluginService _pluginService;
+        private readonly IWidgetPluginManager _widgetPluginManager;
 
         #endregion
 
@@ -25,11 +24,11 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
 
         public EventConsumer(
             FraudLabsProManager fraudLabsProManager,
-            IPluginService pluginService
+            IWidgetPluginManager widgetPluginManager
             )
         {
             _fraudLabsProManager = fraudLabsProManager;
-            _pluginService = pluginService;
+            _widgetPluginManager = widgetPluginManager;
         }
 
         #endregion
@@ -42,9 +41,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
         /// <param name="eventMessage">The event message.</param>
         public void HandleEvent(OrderPlacedEvent eventMessage)
         {
-            //check whether the plugin is installed
-            var pluginDescriptor = _pluginService.GetPluginDescriptorBySystemName<IPlugin>(FraudLabsProDefaults.SystemName, LoadPluginsMode.InstalledOnly);
-            if (pluginDescriptor == null)
+            //check whether the plugin is active
+            if (!_widgetPluginManager.IsPluginActive(FraudLabsProDefaults.SystemName))
                 return;
 
             //handle event
@@ -60,13 +58,13 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
             if (eventMessage?.Helper?.ViewContext == null)
                 return;
 
-            //check whether the plugin is installed
-            var pluginDescriptor = _pluginService.GetPluginDescriptorBySystemName<IPlugin>(FraudLabsProDefaults.SystemName, LoadPluginsMode.InstalledOnly);
-            if (pluginDescriptor == null)
+            //check whether the plugin is active
+            if (!_widgetPluginManager.IsPluginActive(FraudLabsProDefaults.SystemName))
                 return;
 
             //add js sсript to the one page checkout
-            if (eventMessage.GetRouteNames().Any(r => r.Equals(FraudLabsProDefaults.OnePageCheckoutRouteName) || r.Equals(FraudLabsProDefaults.ConfirmCheckoutRouteName)))
+            var routeName = eventMessage.GetRouteName() ?? string.Empty;
+            if (routeName == FraudLabsProDefaults.OnePageCheckoutRouteName || routeName == FraudLabsProDefaults.ConfirmCheckoutRouteName)
             {
                 eventMessage.Helper.AddScriptParts(ResourceLocation.Footer, FraudLabsProDefaults.AgentScriptPath, excludeFromBundle: true);
             }

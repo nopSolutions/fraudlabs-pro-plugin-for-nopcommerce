@@ -11,6 +11,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.Misc.FraudLabsPro.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class FraudLabsProController : BasePluginController
     {
         #region Fields

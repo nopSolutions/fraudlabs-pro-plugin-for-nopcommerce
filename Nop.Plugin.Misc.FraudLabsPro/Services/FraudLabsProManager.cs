@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 using Nop.Core;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
+using Nop.Services.Customers;
+using Nop.Services.Directory;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Nop.Services.Security;
@@ -19,6 +21,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
         #region Fields
 
         private readonly FraudLabsProSettings _fraudLabsProSettings;
+        private readonly IAddressService _addressService;
+        private readonly ICountryService _countryService;
+        private readonly ICustomerService _customerService;
         private readonly IEncryptionService _encryptionService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -26,6 +31,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderService _orderService;
         private readonly ISettingService _settingService;
+        private readonly IStateProvinceService _stateProvinceService;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
 
@@ -35,6 +41,9 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
 
         public FraudLabsProManager(
             FraudLabsProSettings fraudLabsProSettings,
+            IAddressService addressService,
+            ICountryService countryService,
+            ICustomerService customerService,
             IEncryptionService encryptionService,
             IGenericAttributeService genericAttributeService,
             IHttpContextAccessor httpContextAccessor,
@@ -42,11 +51,15 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
             IOrderProcessingService orderProcessingService,
             IOrderService orderService,
             ISettingService settingService,
+            IStateProvinceService stateProvinceService,
             IStoreContext storeContext,
             IWorkContext workContext
             )
         {
             _fraudLabsProSettings = fraudLabsProSettings;
+            _addressService = addressService;
+            _countryService = countryService;
+            _customerService = customerService;
             _encryptionService = encryptionService;
             _genericAttributeService = genericAttributeService;
             _httpContextAccessor = httpContextAccessor;
@@ -55,6 +68,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
             _orderService = orderService;
             _orderService = orderService;
             _settingService = settingService;
+            _stateProvinceService = stateProvinceService;
             _storeContext = storeContext;
             _workContext = workContext;
         }
@@ -73,7 +87,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
 
             //try to get cookie
             var cookieName = FraudLabsProDefaults.CookiesName;
-            httpContext.Request.Cookies.TryGetValue(cookieName, out string cookieChecksum);
+            httpContext.Request.Cookies.TryGetValue(cookieName, out var cookieChecksum);
 
             return cookieChecksum ?? string.Empty;
         }
@@ -133,11 +147,11 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                 // Configure FraudLabs Pro API KEY
                 FraudLabsProConfig.APIKey = _fraudLabsProSettings.ApiKey;
 
-                var customer = order.Customer;
+                var customer = _customerService.GetCustomerById(order.CustomerId);
                 if (customer != null)
                 {
-                    var shippingAddress = order.ShippingAddress;
-                    var billingAddress = order.BillingAddress;
+                    var shippingAddress = _addressService.GetAddressById(order.ShippingAddressId ?? order.BillingAddressId);
+                    var billingAddress = _addressService.GetAddressById(order.BillingAddressId);
 
                     //prepare parameters
                     var screenOrderPara = new OrderPara();
@@ -155,8 +169,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     {
                         screenOrderPara.BillAddress = billingAddress.Address1 + " " + billingAddress.Address2;
                         screenOrderPara.BillCity = billingAddress.City ?? string.Empty;
-                        screenOrderPara.BillState = billingAddress.StateProvince?.Name ?? string.Empty;
-                        screenOrderPara.BillCountry = billingAddress.Country?.TwoLetterIsoCode ?? string.Empty;
+                        screenOrderPara.BillState = _stateProvinceService.GetStateProvinceByAddress(billingAddress)?.Name ?? string.Empty;
+                        screenOrderPara.BillCountry = _countryService.GetCountryByAddress(billingAddress)?.TwoLetterIsoCode ?? string.Empty;
                         screenOrderPara.BillZIPCode = billingAddress.ZipPostalCode ?? string.Empty;
                     }
 
@@ -165,8 +179,8 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     {
                         screenOrderPara.ShippingAddress = shippingAddress.Address1 + " " + shippingAddress.Address2;
                         screenOrderPara.ShippingCity = shippingAddress.City ?? string.Empty;
-                        screenOrderPara.ShippingState = shippingAddress.StateProvince?.Name ?? string.Empty;
-                        screenOrderPara.ShippingCountry = shippingAddress.Country?.TwoLetterIsoCode ?? string.Empty;
+                        screenOrderPara.ShippingState = _stateProvinceService.GetStateProvinceByAddress(shippingAddress)?.Name ?? string.Empty;
+                        screenOrderPara.ShippingCountry = _countryService.GetCountryByAddress(shippingAddress)?.TwoLetterIsoCode ?? string.Empty;
                         screenOrderPara.ShippingZIPCode = shippingAddress.ZipPostalCode ?? string.Empty;
                     }
 
@@ -185,7 +199,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Services
                     screenOrderPara.UserOrderID = order.Id.ToString();
                     screenOrderPara.UserOrderMemo = order.OrderGuid.ToString();
                     screenOrderPara.Amount = order.OrderTotal;
-                    screenOrderPara.Quantity = order.OrderItems.Sum(x => x.Quantity);
+                    screenOrderPara.Quantity = _orderService.GetOrderItems(order.Id).Sum(x => x.Quantity);
                     screenOrderPara.Currency = order.CustomerCurrencyCode ?? string.Empty;
 
                     // ScreenOrder API

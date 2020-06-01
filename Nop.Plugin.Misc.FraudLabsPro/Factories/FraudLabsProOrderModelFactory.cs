@@ -5,6 +5,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Plugin.Misc.FraudLabsPro.Models.Order;
 using Nop.Plugin.Misc.FraudLabsPro.Services;
 using Nop.Services.Common;
+using Nop.Services.Customers;
 using Nop.Web.Areas.Admin.Models.Orders;
 
 namespace Nop.Plugin.Misc.FraudLabsPro.Factories
@@ -16,6 +17,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Factories
     {
         #region Fields
 
+        private readonly ICustomerService _customerService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWorkContext _workContext;
 
@@ -23,9 +25,12 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Factories
 
         #region Ctor
 
-        public FraudLabsProOrderModelFactory(IGenericAttributeService genericAttributeService,
+        public FraudLabsProOrderModelFactory(
+            ICustomerService customerService,
+            IGenericAttributeService genericAttributeService,
             IWorkContext workContext)
         {
+            _customerService = customerService;
             _genericAttributeService = genericAttributeService;
             _workContext = workContext;
         }
@@ -64,7 +69,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Factories
                 var orderResultModel = response.ToObject<FraudLabsProOrderModel>();
 
                 orderResultModel.Id = orderModel.Id;
-                orderResultModel.IPAddress = order.Customer.LastIpAddress;
+                orderResultModel.IPAddress = _customerService.GetCustomerById(order.CustomerId)?.LastIpAddress;
                 orderResultModel.IPCountry = ISO3166.FromCountryCode(orderResultModel.IPCountry)?.Name ?? "-";
                 orderResultModel.FraudLabsProOriginalStatus = _genericAttributeService.GetAttribute<string>(order, FraudLabsProDefaults.OrderStatusAttribute) ?? string.Empty;
                 model = orderResultModel;

@@ -51,7 +51,7 @@ namespace Nop.Plugin.Misc.FraudLabsPro.Components
             if (!widgetZone?.Equals(AdminWidgetZones.OrderDetailsBlock, StringComparison.InvariantCultureIgnoreCase) ?? true)
                 return Content(string.Empty);
 
-            //check whether the payment plugin is active
+            //check whether the plugin is active
             if (!_widgetPluginManager.IsPluginActive(FraudLabsProDefaults.SystemName))
                 return Content(string.Empty);
 
